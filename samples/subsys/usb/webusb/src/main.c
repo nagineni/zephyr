@@ -42,27 +42,6 @@ static const u8_t webusb_bos_descriptor[] = {
 	0x00, 0x01, 0x01, 0x01,
 };
 
-/* WebUSB Device Requests */
-static const u8_t webusb_allowed_origins[] = {
-	/* Allowed Origins Header:
-	 * https://wicg.github.io/webusb/#get-allowed-origins
-	 */
-	0x05, 0x00, 0x0D, 0x00, 0x01,
-
-	/* Configuration Subset Header:
-	 * https://wicg.github.io/webusb/#configuration-subset-header
-	 */
-	0x04, 0x01, 0x01, 0x01,
-
-	/* Function Subset Header:
-	 * https://wicg.github.io/webusb/#function-subset-header
-	 */
-	0x04, 0x02, 0x02, 0x01
-};
-
-/* Number of allowed origins */
-#define NUMBER_OF_ALLOWED_ORIGINS   1
-
 /* URL Descriptor: https://wicg.github.io/webusb/#url-descriptor */
 static const u8_t webusb_origin_url[] = {
 	/* Length, DescriptorType, Scheme */
@@ -106,22 +85,15 @@ int custom_handle_req(struct usb_setup_packet *pSetup,
 int vendor_handle_req(struct usb_setup_packet *pSetup,
 		s32_t *len, u8_t **data)
 {
-	/* Get Allowed origins request */
-	if (pSetup->bRequest == 0x01 && pSetup->wIndex == 0x01) {
-		*data = (u8_t *)(&webusb_allowed_origins);
-		*len = sizeof(webusb_allowed_origins);
-
-		return 0;
-	} else if (pSetup->bRequest == 0x01 && pSetup->wIndex == 0x02) {
-		/* Get URL request */
+	/* Get URL request */
+	if (pSetup->bRequest == 0x01 && pSetup->wIndex == 0x02) {
 		u8_t index = GET_DESC_INDEX(pSetup->wValue);
 
-		if (index == 0 || index > NUMBER_OF_ALLOWED_ORIGINS)
+		if (index != 1)
 			return -ENOTSUP;
 
 		*data = (u8_t *)(&webusb_origin_url);
 		*len = sizeof(webusb_origin_url);
-
 		return 0;
 	}
 

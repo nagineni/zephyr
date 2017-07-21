@@ -53,7 +53,7 @@
 #define WEBUSB_NUM_ITF         0x03
 
 /* Number of Endpoints in the custom interface */
-#define WEBUSB_NUM_EP          0x02
+#define WEBUSB_NUM_EP          0x03
 #define WEBUSB_ENDP_OUT        0x02
 #define WEBUSB_ENDP_IN         0x83
 
@@ -63,7 +63,7 @@
  * (5 x EP) + HF + CMF + ACMF + UF -> 67 bytes
  */
 #define WEBUSB_SERIAL_CONF_SIZE   (USB_CONFIGURATION_DESC_SIZE + \
-	(3 * USB_INTERFACE_DESC_SIZE) + (5 * USB_ENDPOINT_DESC_SIZE) + 19)
+	(1 * USB_INTERFACE_DESC_SIZE) + (3 * USB_ENDPOINT_DESC_SIZE))
 
 /* WebUSB enabled Custom Class driver port name */
 #define WEBUSB_SERIAL_PORT_NAME "WSERIAL"

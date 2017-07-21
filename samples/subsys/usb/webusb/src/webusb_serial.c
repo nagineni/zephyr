@@ -139,45 +139,12 @@ static const u8_t webusb_serial_usb_description[] = {
 	USB_INTERFACE_DESC,             /* Descriptor type */
 	0x00,                           /* Interface index */
 	0x00,                           /* Alternate setting */
-	CDC1_NUM_EP,                    /* Number of Endpoints */
-	COMMUNICATION_DEVICE_CLASS,     /* Class */
-	ACM_SUBCLASS,                   /* SubClass */
-	V25TER_PROTOCOL,                /* Protocol */
+	WEBUSB_NUM_EP,                  /* Number of Endpoints */
+	CUSTOM_CLASS,                   /* Custom Class */
+	0x00,                           /* SubClass */
+	0x00,                           /* Protocol */
 	/* Index of the Interface String Descriptor */
-	0x00,
-
-	/* Header Functional Descriptor */
-	USB_HFUNC_DESC_SIZE,            /* Descriptor size */
-	CS_INTERFACE,                   /* Descriptor type */
-	USB_HFUNC_SUBDESC,              /* Descriptor SubType */
-	LOW_BYTE(USB_1_1),
-	HIGH_BYTE(USB_1_1),             /* CDC Device Release Number */
-
-	/* Call Management Functional Descriptor */
-	USB_CMFUNC_DESC_SIZE,           /* Descriptor size */
-	CS_INTERFACE,                   /* Descriptor type */
-	USB_CMFUNC_SUBDESC,             /* Descriptor SubType */
-	0x00,                           /* Capabilities */
-	0x01,                           /* Data Interface */
-
-	/* ACM Functional Descriptor */
-	USB_ACMFUNC_DESC_SIZE,          /* Descriptor size */
-	CS_INTERFACE,                   /* Descriptor type */
-	USB_ACMFUNC_SUBDESC,            /* Descriptor SubType */
-	/* Capabilities - Device supports the request combination of:
-	 * Set_Line_Coding,
-	 * Set_Control_Line_State,
-	 * Get_Line_Coding
-	 * and the notification Serial_State
-	 */
-	0x02,
-
-	/* Union Functional Descriptor */
-	USB_UFUNC_DESC_SIZE,            /* Descriptor size */
-	CS_INTERFACE,                   /* Descriptor type */
-	USB_UFUNC_SUBDESC,              /* Descriptor SubType */
-	0x00,                           /* Master Interface */
-	0x01,                           /* Slave Interface */
+	0x00,                           /* Interval */
 
 	/* Endpoint INT */
 	USB_ENDPOINT_DESC_SIZE,         /* Descriptor size */
@@ -187,48 +154,6 @@ static const u8_t webusb_serial_usb_description[] = {
 	LOW_BYTE(CDC_INTERRUPT_EP_MPS),
 	HIGH_BYTE(CDC_INTERRUPT_EP_MPS),/* Max packet size */
 	0x0A,                           /* Interval */
-
-	/* Interface descriptor */
-	USB_INTERFACE_DESC_SIZE,        /* Descriptor size */
-	USB_INTERFACE_DESC,             /* Descriptor type */
-	0x01,                           /* Interface index */
-	0x00,                           /* Alternate setting */
-	CDC2_NUM_EP,                    /* Number of Endpoints */
-	COMMUNICATION_DEVICE_CLASS_DATA,/* Class */
-	0x00,                           /* SubClass */
-	0x00,                           /* Protocol */
-	/* Index of the Interface String Descriptor */
-	0x00,
-
-	/* First Endpoint IN */
-	USB_ENDPOINT_DESC_SIZE,         /* Descriptor size */
-	USB_ENDPOINT_DESC,              /* Descriptor type */
-	CDC_ENDP_IN,                    /* Endpoint address */
-	USB_DC_EP_BULK,                 /* Attributes */
-	LOW_BYTE(CDC_BULK_EP_MPS),
-	HIGH_BYTE(CDC_BULK_EP_MPS),     /* Max packet size */
-	0x00,                           /* Interval */
-
-	/* Second Endpoint OUT */
-	USB_ENDPOINT_DESC_SIZE,         /* Descriptor size */
-	USB_ENDPOINT_DESC,              /* Descriptor type */
-	CDC_ENDP_OUT,                   /* Endpoint address */
-	USB_DC_EP_BULK,                 /* Attributes */
-	LOW_BYTE(CDC_BULK_EP_MPS),
-	HIGH_BYTE(CDC_BULK_EP_MPS),     /* Max packet size */
-	0x00,                           /* Interval */
-
-	/* Interface descriptor */
-	USB_INTERFACE_DESC_SIZE,        /* Descriptor size */
-	USB_INTERFACE_DESC,             /* Descriptor type */
-	0x02,                           /* Interface index */
-	0x00,                           /* Alternate setting */
-	WEBUSB_NUM_EP,                  /* Number of Endpoints */
-	CUSTOM_CLASS,                   /* Custom Class */
-	0x00,                           /* SubClass */
-	0x00,                           /* Protocol */
-	/* Index of the Interface String Descriptor */
-	0x00,                           /* Interval */
 
 	/* First Endpoint IN */
 	USB_ENDPOINT_DESC_SIZE,         /* Descriptor size */
@@ -479,6 +404,7 @@ static void webusb_serial_int_in(u8_t ep,
 
 	dev_data->notification_sent = 1;
 	SYS_LOG_DBG("CDC_IntIN EP[%x]\r", ep);
+
 }
 
 /**
@@ -534,14 +460,6 @@ static struct usb_ep_cfg_data webusb_serial_ep_data[] = {
 	},
 	{
 		.ep_cb	= webusb_serial_bulk_out,
-		.ep_addr = CDC_ENDP_OUT
-	},
-	{
-		.ep_cb = webusb_serial_bulk_in,
-		.ep_addr = CDC_ENDP_IN
-	},
-	{
-		.ep_cb	= webusb_serial_bulk_out,
 		.ep_addr = WEBUSB_ENDP_OUT
 	},
 	{
@@ -560,7 +478,7 @@ static struct usb_cfg_data webusb_serial_config = {
 		.vendor_handler = webusb_serial_vendor_handle_req,
 		.payload_data = NULL,
 	},
-	.num_endpoints = CDC1_NUM_EP + CDC2_NUM_EP + WEBUSB_NUM_EP,
+	.num_endpoints = WEBUSB_NUM_EP,
 	.endpoint = webusb_serial_ep_data
 };
 

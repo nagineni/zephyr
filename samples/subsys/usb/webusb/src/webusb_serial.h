@@ -42,20 +42,36 @@
 
 #include <device.h>
 #include "usb_device.h"
+#include <net/buf.h>
 
 /* Set USB version to 2.1 so that the host will request the BOS descriptor. */
 #define USB_2_1     0x0210
 
+/* Intel vendor ID */
+#define WEBUSB_VENDOR_ID   0x8086
+
+/* Product Id, random value */
+#define WEBUSB_PRODUCT_ID  0xF8A1
+
 /* BOS descriptor type */
 #define DESCRIPTOR_TYPE_BOS     0x0f
+
+/* Number of configurations for the USB Device */
+#define WEBUSB_NUM_CONF    0x01
 
 /* Number of interfaces */
 #define WEBUSB_NUM_ITF         0x03
 
 /* Number of Endpoints in the custom interface */
-#define WEBUSB_NUM_EP          0x03
+#define WEBUSB_NUM_EP          0x02
 #define WEBUSB_ENDP_OUT        0x02
 #define WEBUSB_ENDP_IN         0x83
+
+/* Max WebUSB class request data size */
+#define WEBUSB_CLASS_REQ_MAX_DATA_SIZE 8
+
+/* Max packet size for Bulk endpoints */
+#define WEBUSB_BULK_EP_MPS     64
 
 /* Size in bytes of the configuration sent to
  * the Host on GetConfiguration() request
@@ -63,10 +79,16 @@
  * (5 x EP) + HF + CMF + ACMF + UF -> 67 bytes
  */
 #define WEBUSB_SERIAL_CONF_SIZE   (USB_CONFIGURATION_DESC_SIZE + \
-	(1 * USB_INTERFACE_DESC_SIZE) + (3 * USB_ENDPOINT_DESC_SIZE))
+	(1 * USB_INTERFACE_DESC_SIZE) + (2 * USB_ENDPOINT_DESC_SIZE))
 
 /* WebUSB enabled Custom Class driver port name */
 #define WEBUSB_SERIAL_PORT_NAME "WSERIAL"
+
+
+/**
+ * Callback function to send received data to the application.
+ */
+typedef void (*webusb_receive_handler) (struct net_buf *buf);
 
 /**
  * WebUSB request handlers
@@ -80,6 +102,10 @@ struct webusb_req_handlers {
 	 * handler
 	 */
 	usb_request_handler custom_handler;
+	/**
+	 * Handler for sending received data to application.
+	 */
+	webusb_receive_handler rx_cb;
 };
 
 /**
@@ -93,5 +119,14 @@ struct webusb_req_handlers {
  * @return N/A
  */
 void webusb_register_request_handlers(struct webusb_req_handlers *handlers);
+
+/**
+ * @brief Callback used to send data to the Host
+ *
+ * @param buf Buffer containing data to be sent to the Host.
+ *
+ * @return Number of bytes sent..
+ */
+int webusb_write(struct net_buf *buf);
 
 #endif /* __WEBUSB_SERIAL_H__ */
